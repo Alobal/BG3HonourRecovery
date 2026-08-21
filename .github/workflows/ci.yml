@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-publish:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        shell: pwsh
+        run: |
+          dotnet restore .\Bg3HonourRecovery\Bg3HonourRecovery.csproj
+          dotnet restore .\Bg3HonourRecovery.SmokeTests\Bg3HonourRecovery.SmokeTests.csproj
+
+      - name: Build
+        run: dotnet build .\Bg3HonourRecovery\Bg3HonourRecovery.csproj --configuration Release --no-restore -warnaserror
+
+      - name: Smoke tests
+        run: dotnet run --project .\Bg3HonourRecovery.SmokeTests\Bg3HonourRecovery.SmokeTests.csproj --configuration Release --no-restore
+
+      - name: Publish single executable
+        run: dotnet publish .\Bg3HonourRecovery\Bg3HonourRecovery.csproj --configuration Release --runtime win-x64 --self-contained true --no-restore --output .\artifacts\publish
+
+      - name: Verify packaged runtime
+        run: .\artifacts\publish\BG3HonourRecovery.exe --verify-runtime
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: BG3HonourRecovery-win-x64
+          path: |
+            artifacts/publish/BG3HonourRecovery.exe
+            THIRD_PARTY_NOTICES.md
+          if-no-files-found: error

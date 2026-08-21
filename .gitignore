@@ -1,0 +1,21 @@
+**/bin/
+**/obj/
+.vs/
+artifacts/
+TestResults/
+*.user
+*.suo
+*.pdb
+
+# ExportTool copies not used by the application. The matching framework/package
+# assemblies are supplied by the self-contained .NET 8 publish instead.
+ThirdParty/LSLib/System.IO.Hashing.dll
+ThirdParty/LSLib/System.IO.Pipelines.dll
+
+# Local collaboration and learning material; never publish.
+/AUDIT.md
+/MISSION.md
+/NOTES.md
+/RESOURCES.md
+/lessons/
+/reference/
